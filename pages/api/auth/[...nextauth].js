@@ -4,10 +4,10 @@ import CredentialsProvider from "next-auth/providers/credentials"
 
 export const authOptions = {
   providers: [
-    // GoogleProvider({
-    //   clientId: "914135215112-kv1hb0jf28cu1pvq6r3j1aqitp38kdrj.apps.googleusercontent.com",
-    //   clientSecret: "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",
-    // }),
+     GoogleProvider({
+     clientId: "914135215112-kv1hb0jf28cu1pvq6r3j1aqitp38kdrj.apps.googleusercontent.com",
+     clientSecret: "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",
+     }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -23,7 +23,7 @@ export const authOptions = {
       } 
     })
   ],
-//   secret: "0123456789abcdef0123456789abcdef01234567",
+   secret: "0123456789abcdef0123456789abcdef01234567",
   callbacks: {
     async jwt({ token, account, user }) {
       if (account) {
