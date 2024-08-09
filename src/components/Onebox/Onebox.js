@@ -1,12 +1,15 @@
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import EmailList from '../EmailList/EmailList';
 import EmailContent from '../EmailContent/EmailContent';
 import LeadDetails from '../LeadDetails/LeadDetails';
 import Sidebar from '../Sidebar/Sidebar';
 import { useApp } from '../../contexts/AppContext';
+
+// ... (Other styled components)
 
 const EmptyStateIcon = () => (
   <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -75,34 +78,13 @@ const EmptyState = styled.div`
   text-align: center;
 `;
 
-const Onebox = () => {
+const AuthenticatedOnebox = () => {
   const [threads, setThreads] = useState([]);
   const [selectedThread, setSelectedThread] = useState(null);
   const [showReplyBox, setShowReplyBox] = useState(false);
   const { isDarkMode, toggleTheme } = useApp();
 
-  useEffect(() => {
-    fetchThreads();
-  }, []);
-
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (selectedThread) {
-        if (e.key === 'd' || e.key === 'D') {
-          handleDeleteThread(selectedThread.id);
-        } else if (e.key === 'r' || e.key === 'R') {
-          setShowReplyBox(true);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [selectedThread]);
-
-  const fetchThreads = async () => {
+  const fetchThreads = useCallback(async () => {
     try {
       const response = await fetch('/api/onebox/list');
       const data = await response.json();
@@ -110,7 +92,39 @@ const Onebox = () => {
     } catch (error) {
       console.error('Failed to fetch threads:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchThreads();
+  }, [fetchThreads]);
+
+  const handleDeleteThread = useCallback(async (threadId) => {
+    try {
+      await fetch(`/api/onebox/${threadId}`, { method: 'DELETE' });
+      fetchThreads();
+      setSelectedThread(null);
+      setShowReplyBox(false);
+    } catch (error) {
+      console.error('Failed to delete thread:', error);
+    }
+  }, [fetchThreads]);
+
+  const handleKeyPress = useCallback((e) => {
+    if (selectedThread) {
+      if (e.key === 'd' || e.key === 'D') {
+        handleDeleteThread(selectedThread.id);
+      } else if (e.key === 'r' || e.key === 'R') {
+        setShowReplyBox(true);
+      }
+    }
+  }, [selectedThread, handleDeleteThread]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   const handleThreadSelect = async (threadId) => {
     try {
@@ -120,17 +134,6 @@ const Onebox = () => {
       setShowReplyBox(false);
     } catch (error) {
       console.error('Failed to fetch thread:', error);
-    }
-  };
-
-  const handleDeleteThread = async (threadId) => {
-    try {
-      await fetch(`/api/onebox/${threadId}`, { method: 'DELETE' });
-      fetchThreads();
-      setSelectedThread(null);
-      setShowReplyBox(false);
-    } catch (error) {
-      console.error('Failed to delete thread:', error);
     }
   };
 
@@ -161,7 +164,7 @@ const Onebox = () => {
         <Header isDarkMode={isDarkMode}>
           <Title isDarkMode={isDarkMode}>Onebox</Title>
           <UserMenu>
-            <WorkspaceSelector isDarkMode={isDarkMode}>Tim's Workspace</WorkspaceSelector>
+            <WorkspaceSelector isDarkMode={isDarkMode}>Tim&apos;s Workspace</WorkspaceSelector> {/* Changed ' to &apos; */}
             <ThemeToggle onClick={toggleTheme} isDarkMode={isDarkMode} />
           </UserMenu>
         </Header>
@@ -188,8 +191,8 @@ const Onebox = () => {
           ) : (
             <EmptyState>
               <EmptyStateIcon />
-              <h2>It's the beginning of a legendary sales pipeline</h2>
-              <p>When you have inbound E-mails you'll see them here</p>
+              <h2>It&apos;s the beginning of a legendary sales pipeline</h2> {/* Changed ' to &apos; */}
+              <p>When you have inbound E-mails you&apos;ll see them here</p>  {/* Changed ' to &apos; */}
             </EmptyState>
           )}
         </ContentArea>
@@ -198,4 +201,4 @@ const Onebox = () => {
   );
 };
 
-export default Onebox;
+export default AuthenticatedOnebox;
