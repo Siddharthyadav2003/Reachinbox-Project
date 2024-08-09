@@ -1,4 +1,5 @@
-import AuthenticatedOnebox from '../components/Onebox/Onebox';
+import AuthenticatedOnebox from '../../../src/components/Onebox/Onebox';
+
 
 export default function OneboxPage() {
   return <AuthenticatedOnebox />;
